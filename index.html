@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Grace Signature Builder</title>
+
+    <meta
+        name="description"
+        content="Generate standardized Grace Chapel email signatures.">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <div class="app">
+
+        <!-- =======================================================
+             Sidebar
+        ======================================================== -->
+
+        <aside class="sidebar">
+
+            <header class="sidebar-header">
+
+                <h1>Grace Signature Builder</h1>
+
+                <p>
+                    Create a standardized email signature for
+                    Grace Chapel staff.
+                </p>
+
+            </header>
+
+            <form id="signature-form">
+
+                <div class="field">
+
+                    <label for="name">
+                        Name
+                    </label>
+
+                    <input
+                        id="name"
+                        type="text"
+                        placeholder="Phil Davis"
+                        autocomplete="name">
+
+                </div>
+
+                <div class="field">
+
+                    <label for="title">
+                        Job Title
+                    </label>
+
+                    <input
+                        id="title"
+                        type="text"
+                        placeholder="Graphic Designer">
+
+                </div>
+
+                <div class="field">
+
+                    <label for="phone1">
+                        Primary Phone
+                    </label>
+
+                    <input
+                        id="phone1"
+                        type="text"
+                        placeholder="339-970-2301">
+
+                </div>
+
+                <div class="field">
+
+                    <label for="phone2">
+                        Secondary Phone
+                    </label>
+
+                    <input
+                        id="phone2"
+                        type="text"
+                        placeholder="Optional">
+
+                </div>
+
+            </form>
+
+            <div class="button-bar">
+
+                <button
+                    id="copy-button"
+                    type="button"
+                    disabled>
+
+                    Copy for Outlook
+
+                </button>
+
+                <button
+                    id="download-button"
+                    type="button"
+                    disabled>
+
+                    Download HTML
+
+                </button>
+
+                <button
+                    id="reset-button"
+                    type="button">
+
+                    Reset
+
+                </button>
+
+            </div>
+
+            <footer class="sidebar-footer">
+
+                Grace Signature Builder
+                <span id="version">
+                    v0.2
+                </span>
+
+            </footer>
+
+        </aside>
+
+        <!-- =======================================================
+             Preview
+        ======================================================== -->
+
+        <main class="preview">
+
+            <div class="preview-header">
+
+                <h2>Live Preview</h2>
+
+                <div class="preview-note">
+                    Updates automatically as you type
+                </div>
+
+            </div>
+
+            <section
+                id="signature-preview"
+                class="preview-card">
+
+                <!-- Rendered by JavaScript -->
+
+            </section>
+
+        </main>
+
+    </div>
+
+    <script type="module" src="main.js"></script>
+
+</body>
+</html>
