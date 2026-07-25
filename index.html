@@ -2,167 +2,85 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Grace Signature Builder</title>
-
-    <meta
-        name="description"
-        content="Generate standardized Grace Chapel email signatures.">
 
     <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
 
-    <div class="app">
+<div class="container">
 
-        <!-- =======================================================
-             Sidebar
-        ======================================================== -->
+    <aside class="editor">
 
-        <aside class="sidebar">
+        <img
+            src="assets/logo-default.png"
+            alt="Grace Chapel"
+            class="brand-logo"
+			width="240px">
+		<br><br>
 
-            <header class="sidebar-header">
+        <h1>Email Signature Builder</h1>
 
-                <h1>Grace Signature Builder</h1>
+        <p class="subtitle">
+            Create a standardized Grace Chapel email signature.
+        </p>
 
-                <p>
-                    Create a standardized email signature for
-                    Grace Chapel staff.
-                </p>
+        <label>
+            Name
+            <input id="name" type="text">
+        </label>
 
-            </header>
+        <label>
+            Job Title
+            <input id="title" type="text">
+        </label>
 
-            <form id="signature-form">
+        <label>
+            Primary Phone
+            <input id="phone1" type="text">
+        </label>
 
-                <div class="field">
+        <label>
+            Secondary Phone
+            <input id="phone2" type="text">
+        </label>
 
-                    <label for="name">
-                        Name
-                    </label>
+        <div class="button-group">
 
-                    <input
-                        id="name"
-                        type="text"
-                        placeholder="Phil Davis"
-                        autocomplete="name">
+            <button disabled>
+                Copy for Outlook
+            </button>
 
-                </div>
+            <button disabled>
+                Download HTML
+            </button>
 
-                <div class="field">
+            <button id="reset">
+                Reset
+            </button>
 
-                    <label for="title">
-                        Job Title
-                    </label>
+        </div>
 
-                    <input
-                        id="title"
-                        type="text"
-                        placeholder="Graphic Designer">
+    </aside>
 
-                </div>
+    <main class="preview">
 
-                <div class="field">
+        <h2>Live Preview</h2>
 
-                    <label for="phone1">
-                        Primary Phone
-                    </label>
+        <div class="preview-card">
 
-                    <input
-                        id="phone1"
-                        type="text"
-                        placeholder="339-970-2301">
+            <div id="signature-preview"></div>
 
-                </div>
+        </div>
 
-                <div class="field">
+    </main>
 
-                    <label for="phone2">
-                        Secondary Phone
-                    </label>
+</div>
 
-                    <input
-                        id="phone2"
-                        type="text"
-                        placeholder="Optional">
-
-                </div>
-
-            </form>
-
-            <div class="button-bar">
-
-                <button
-                    id="copy-button"
-                    type="button"
-                    disabled>
-
-                    Copy for Outlook
-
-                </button>
-
-                <button
-                    id="download-button"
-                    type="button"
-                    disabled>
-
-                    Download HTML
-
-                </button>
-
-                <button
-                    id="reset-button"
-                    type="button">
-
-                    Reset
-
-                </button>
-
-            </div>
-
-            <footer class="sidebar-footer">
-
-                Grace Signature Builder
-                <span id="version">
-                    v0.2
-                </span>
-
-            </footer>
-
-        </aside>
-
-        <!-- =======================================================
-             Preview
-        ======================================================== -->
-
-        <main class="preview">
-
-            <div class="preview-header">
-
-                <h2>Live Preview</h2>
-
-                <div class="preview-note">
-                    Updates automatically as you type
-                </div>
-
-            </div>
-
-            <section
-                id="signature-preview"
-                class="preview-card">
-
-                <!-- Rendered by JavaScript -->
-
-            </section>
-
-        </main>
-
-    </div>
-
-    <script type="module" src="main.js"></script>
+<script src="app.js"></script>
 
 </body>
 </html>
