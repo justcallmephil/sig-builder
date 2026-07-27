@@ -90,15 +90,27 @@
                         placeholder="Optional">
 
                 </div>
+<div class="field checkbox-field">
 
+    <label class="checkbox-label">
+
+        <input
+            id="includeApp"
+            type="checkbox"
+            checked>
+
+        <span>Include "Download our app: GC Connect"</span>
+
+    </label>
+
+</div>
             </form>
 
             <div class="button-bar">
 
                 <button
                     id="copy-button"
-                    type="button"
-                    disabled>
+                    type="button">
 
                     Copy for Outlook
 
@@ -142,27 +154,43 @@
 
             <div class="preview-header">
 
-                <h2>Live Preview</h2>
+    <h2>Live Preview</h2>
 
-                <div class="preview-note">
-                    Updates automatically as you type
-                </div>
+    <label class="switch">
 
-            </div>
+    <span>Light</span>
 
-            <section
-                id="signature-preview"
-                class="preview-card">
+    <input
+        id="darkPreview"
+        type="checkbox">
 
-                <!-- Rendered by JavaScript -->
+    <span class="slider"></span>
 
-            </section>
+    <span>Dark</span>
+
+</label>
+
+</div>
+
+           <div id="preview-canvas" class="preview-canvas">
+
+    <section
+        id="signature-preview"
+        class="preview-card">
+    </section>
+
+</div>
 
         </main>
 
     </div>
 
     <script type="module" src="main.js"></script>
+
+    <div id="toast" class="toast">
+    ✓ Signature copied!<br>
+    Open Outlook → Settings → Signatures and paste.
+</div>
 
 </body>
 </html>
