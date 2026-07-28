@@ -224,7 +224,19 @@ function downloadSignature() {
 }
 
 function createHtmlDocument(signatureHtml) {
+    const generatedDate = new Intl.DateTimeFormat(
+        "en-US",
+        {
+            dateStyle: "long",
+            timeStyle: "short"
+        }
+    ).format(new Date());
+
     return `<!DOCTYPE html>
+<!--
+Grace Signature Builder v0.5
+Generated: ${generatedDate}
+-->
 <html lang="en">
 <head>
     <meta charset="UTF-8">
