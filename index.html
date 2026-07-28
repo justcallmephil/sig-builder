@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0">
@@ -74,7 +75,8 @@
                     <input
                         id="phone1"
                         type="text"
-                        placeholder="339-970-2301">
+                        placeholder="339-970-2301"
+                        autocomplete="tel">
 
                 </div>
 
@@ -87,23 +89,28 @@
                     <input
                         id="phone2"
                         type="text"
-                        placeholder="Optional">
+                        placeholder="Optional"
+                        autocomplete="tel">
 
                 </div>
-<div class="field checkbox-field">
 
-    <label class="checkbox-label">
+                <div class="field checkbox-field">
 
-        <input
-            id="includeApp"
-            type="checkbox"
-            checked>
+                    <label class="checkbox-label">
 
-        <span>Include "Download our app: GC Connect"</span>
+                        <input
+                            id="includeApp"
+                            type="checkbox"
+                            checked>
 
-    </label>
+                        <span>
+                            Include "Download our app: GC Connect"
+                        </span>
 
-</div>
+                    </label>
+
+                </div>
+
             </form>
 
             <div class="button-bar">
@@ -118,8 +125,7 @@
 
                 <button
                     id="download-button"
-                    type="button"
-                    disabled>
+                    type="button">
 
                     Download HTML
 
@@ -138,8 +144,9 @@
             <footer class="sidebar-footer">
 
                 Grace Signature Builder
+
                 <span id="version">
-                    v0.2
+                    v0.5
                 </span>
 
             </footer>
@@ -154,43 +161,54 @@
 
             <div class="preview-header">
 
-    <h2>Live Preview</h2>
+                <h2>Live Preview</h2>
 
-    <label class="switch">
+                <label class="switch">
 
-    <span>Light</span>
+                    <span>Light</span>
 
-    <input
-        id="darkPreview"
-        type="checkbox">
+                    <input
+                        id="darkPreview"
+                        type="checkbox">
 
-    <span class="slider"></span>
+                    <span class="slider"></span>
 
-    <span>Dark</span>
+                    <span>Dark</span>
 
-</label>
+                </label>
 
-</div>
+            </div>
 
-           <div id="preview-canvas" class="preview-canvas">
+            <div
+                id="preview-canvas"
+                class="preview-canvas">
 
-    <section
-        id="signature-preview"
-        class="preview-card">
-    </section>
+                <section
+                    id="signature-preview"
+                    class="preview-card">
+                </section>
 
-</div>
+            </div>
 
         </main>
 
     </div>
 
-    <script type="module" src="main.js"></script>
+    <div
+        id="toast"
+        class="toast"
+        role="status"
+        aria-live="polite">
 
-    <div id="toast" class="toast">
-    ✓ Signature copied!<br>
-    Open Outlook → Settings → Signatures and paste.
-</div>
+        ✓ Signature copied!<br>
+        Open Outlook → Settings → Signatures and paste.
+
+    </div>
+
+    <script
+        type="module"
+        src="main.js">
+    </script>
 
 </body>
 </html>

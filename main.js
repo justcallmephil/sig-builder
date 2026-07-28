@@ -2,7 +2,7 @@
  * ==========================================================
  * Grace Signature Builder
  * main.js
- * Version 0.4
+ * Version 0.5
  * ==========================================================
  */
 
@@ -21,6 +21,7 @@ const previewCanvas = document.getElementById("preview-canvas");
 
 const resetButton = document.getElementById("reset-button");
 const copyButton = document.getElementById("copy-button");
+const downloadButton = document.getElementById("download-button");
 
 const darkPreview = document.getElementById("darkPreview");
 const toast = document.getElementById("toast");
@@ -52,12 +53,14 @@ function initialize() {
     render();
 
     copyButton.disabled = false;
+    downloadButton.disabled = false;
 
     form.addEventListener("input", render);
     darkPreview.addEventListener("change", render);
 
     resetButton.addEventListener("click", resetForm);
     copyButton.addEventListener("click", copySignature);
+    downloadButton.addEventListener("click", downloadSignature);
 }
 
 function populateDefaults() {
@@ -99,6 +102,10 @@ function resetForm() {
     populateDefaults();
     render();
 }
+
+/* ==========================================================
+   Copy for Outlook
+========================================================== */
 
 async function copySignature() {
     /*
@@ -142,7 +149,10 @@ async function copySignature() {
             legacyCopy(temporaryContainer);
         }
 
-        showToast();
+        showToast(
+            "✓ Signature copied!<br>" +
+            "Open Outlook → Settings → Signatures and paste."
+        );
     } catch (error) {
         console.error(
             "Unable to copy signature:",
@@ -150,7 +160,11 @@ async function copySignature() {
         );
 
         legacyCopy(temporaryContainer);
-        showToast();
+
+        showToast(
+            "✓ Signature copied!<br>" +
+            "Open Outlook → Settings → Signatures and paste."
+        );
     } finally {
         temporaryContainer.remove();
     }
@@ -170,7 +184,85 @@ function legacyCopy(element) {
     selection.removeAllRanges();
 }
 
-function showToast() {
+/* ==========================================================
+   Download HTML
+========================================================== */
+
+function downloadSignature() {
+    const data = getFormData();
+
+    /*
+     * The downloaded file always uses the standard production
+     * signature, regardless of the current preview mode.
+     */
+    const productionHtml = generateSignature(data);
+    const completeDocument = createHtmlDocument(productionHtml);
+
+    const fileBlob = new Blob(
+        [completeDocument],
+        {
+            type: "text/html;charset=utf-8"
+        }
+    );
+
+    const downloadUrl = URL.createObjectURL(fileBlob);
+    const downloadLink = document.createElement("a");
+
+    downloadLink.href = downloadUrl;
+    downloadLink.download = createFilename(data.name);
+
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    downloadLink.remove();
+
+    URL.revokeObjectURL(downloadUrl);
+
+    showToast(
+        "✓ HTML file downloaded!<br>" +
+        "Open the file in a browser to review the signature."
+    );
+}
+
+function createHtmlDocument(signatureHtml) {
+    return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Grace Chapel Email Signature</title>
+</head>
+
+<body style="margin:24px;background-color:#FFFFFF;">
+${signatureHtml}
+</body>
+</html>
+`;
+}
+
+function createFilename(name) {
+    const cleanedName = String(name || "")
+        .trim()
+        .replace(/[^a-zA-Z0-9\s-]/g, "")
+        .replace(/\s+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+
+    if (!cleanedName) {
+        return "Grace-Signature.html";
+    }
+
+    return `${cleanedName}-Grace-Signature.html`;
+}
+
+/* ==========================================================
+   Toast
+========================================================== */
+
+function showToast(message) {
+    toast.innerHTML = message;
     toast.classList.add("show");
 
     clearTimeout(showToast.timer);
