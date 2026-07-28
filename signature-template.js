@@ -2,7 +2,7 @@
  * ==========================================================
  * Grace Signature Builder
  * signature-template.js
- * Version 0.4
+ * Version 0.5
  * ==========================================================
  */
 
@@ -42,7 +42,13 @@ const styles = {
         "font-weight:bold;text-decoration:none;",
 
     logo:
-        "display:block;border:0;"
+        "display:block;border:0;outline:none;text-decoration:none;",
+
+    socialLink:
+        "display:inline-block;padding:6px;line-height:0;text-decoration:none;",
+
+    socialIcon:
+        "display:block;width:28px;height:28px;border:0;outline:none;text-decoration:none;"
 };
 
 /* ==========================================================
@@ -96,6 +102,7 @@ function buildSignature(data, theme) {
 
     return `
 <table
+    role="presentation"
     cellpadding="0"
     cellspacing="0"
     border="0"
@@ -137,6 +144,7 @@ function buildSignature(data, theme) {
         <td>
 
             <table
+                role="presentation"
                 width="100%"
                 cellpadding="0"
                 cellspacing="0"
@@ -144,7 +152,9 @@ function buildSignature(data, theme) {
 
                 <tr>
 
-                    <td align="left" valign="middle">
+                    <td
+                        align="left"
+                        valign="middle">
 
                         <a
                             href="${GRACE_URL}"
@@ -161,62 +171,95 @@ function buildSignature(data, theme) {
 
                     </td>
 
-                    <td align="right" valign="middle">
+                    <td
+                        align="right"
+                        valign="middle"
+                        style="padding-top:2px;">
 
                         <table
+                            role="presentation"
                             cellpadding="0"
                             cellspacing="0"
                             border="0">
 
                             <tr>
 
-                                <td>
+                                <td
+                                    align="center"
+                                    valign="middle"
+                                    style="font-size:0;line-height:0;">
+
                                     <a
                                         href="https://www.instagram.com/wearegrace/"
                                         target="_blank"
-                                        style="text-decoration:none;">
+                                        aria-label="Instagram"
+                                        style="${styles.socialLink}">
 
                                         <img
                                             src="${INSTAGRAM}"
-                                            width="22"
+                                            width="24"
+                                            height="24"
                                             alt="Instagram"
-                                            style="display:block;border:0;">
+                                            style="${styles.socialIcon}">
 
                                     </a>
+
                                 </td>
 
-                                <td width="8"></td>
+                                <td
+                                    width="4"
+                                    style="width:4px;font-size:0;line-height:0;">
+                                    &nbsp;
+                                </td>
 
-                                <td>
+                                <td
+                                    align="center"
+                                    valign="middle"
+                                    style="font-size:0;line-height:0;">
+
                                     <a
                                         href="https://www.youtube.com/@GraceChapel"
                                         target="_blank"
-                                        style="text-decoration:none;">
+                                        aria-label="YouTube"
+                                        style="${styles.socialLink}">
 
                                         <img
                                             src="${YOUTUBE}"
-                                            width="22"
+                                            width="24"
+                                            height="24"
                                             alt="YouTube"
-                                            style="display:block;border:0;">
+                                            style="${styles.socialIcon}">
 
                                     </a>
+
                                 </td>
 
-                                <td width="8"></td>
+                                <td
+                                    width="4"
+                                    style="width:4px;font-size:0;line-height:0;">
+                                    &nbsp;
+                                </td>
 
-                                <td>
+                                <td
+                                    align="center"
+                                    valign="middle"
+                                    style="font-size:0;line-height:0;">
+
                                     <a
                                         href="https://www.facebook.com/GraceChapelOnline"
                                         target="_blank"
-                                        style="text-decoration:none;">
+                                        aria-label="Facebook"
+                                        style="${styles.socialLink}">
 
                                         <img
                                             src="${FACEBOOK}"
                                             width="22"
+                                            height="22"
                                             alt="Facebook"
-                                            style="display:block;border:0;">
+                                            style="${styles.socialIcon}">
 
                                     </a>
+
                                 </td>
 
                             </tr>
