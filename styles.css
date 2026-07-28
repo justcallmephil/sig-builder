@@ -1,7 +1,7 @@
 /* ==========================================================
    Grace Signature Builder
    styles.css
-   Version 0.3
+   Version 0.5
 ========================================================== */
 
 /* ==========================================================
@@ -22,10 +22,23 @@
     --preview-toolbar-light: #f7f8fa;
     --preview-toolbar-dark: #202020;
 
+    --status-ready: #267a45;
+    --status-ready-background: #f2f8f4;
+    --status-ready-border: #d2e8d9;
+
+    --status-warning: #9a6700;
+    --status-warning-background: #fff8e5;
+    --status-warning-border: #efd89a;
+
+    --status-error: #b42318;
+    --status-error-background: #fff3f2;
+    --status-error-border: #f2c7c3;
+
     --radius: 14px;
     --sidebar-width: 380px;
     --transition: .2s ease;
 }
+
 
 /* ==========================================================
    Reset
@@ -44,6 +57,7 @@ html {
 body {
     margin: 0;
     min-height: 100%;
+
     background: var(--gc-background);
     color: var(--gc-text);
 
@@ -57,6 +71,7 @@ body {
         sans-serif;
 }
 
+
 /* ==========================================================
    Layout
 ========================================================== */
@@ -66,6 +81,7 @@ body {
     grid-template-columns: var(--sidebar-width) 1fr;
     min-height: 100vh;
 }
+
 
 /* ==========================================================
    Sidebar
@@ -95,6 +111,7 @@ body {
     color: var(--gc-muted);
     line-height: 1.5;
 }
+
 
 /* ==========================================================
    Form
@@ -136,6 +153,7 @@ input:focus {
     box-shadow: 0 0 0 3px rgba(0, 114, 206, .15);
 }
 
+
 /* ==========================================================
    Checkbox
 ========================================================== */
@@ -160,6 +178,7 @@ input:focus {
     margin: 0;
 }
 
+
 /* ==========================================================
    Buttons
 ========================================================== */
@@ -180,6 +199,7 @@ button {
     border: none;
     border-radius: 10px;
 
+    font-family: inherit;
     font-size: 15px;
     font-weight: 600;
 
@@ -189,6 +209,8 @@ button {
         background var(--transition),
         border-color var(--transition),
         box-shadow var(--transition),
+        color var(--transition),
+        opacity var(--transition),
         transform var(--transition);
 }
 
@@ -227,6 +249,7 @@ button:disabled {
     font-size: 13px;
 }
 
+
 /* ==========================================================
    Preview Area
 ========================================================== */
@@ -254,6 +277,28 @@ button:disabled {
     font-size: 14px;
 }
 
+
+/* ==========================================================
+   Preview Window
+========================================================== */
+
+.preview-window {
+    overflow: hidden;
+
+    background: var(--gc-card);
+    border: 1px solid var(--gc-border);
+    border-radius: 18px;
+
+    box-shadow:
+        0 20px 50px rgba(24, 39, 56, .1),
+        0 4px 12px rgba(24, 39, 56, .06);
+
+    transition:
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+
 /* ==========================================================
    Email Window
 ========================================================== */
@@ -266,12 +311,6 @@ button:disabled {
     padding: 96px 48px 48px;
 
     background: var(--preview-light);
-    border: 1px solid var(--gc-border);
-    border-radius: 18px;
-
-    box-shadow:
-        0 20px 50px rgba(24, 39, 56, .1),
-        0 4px 12px rgba(24, 39, 56, .06);
 
     transition:
         background .25s ease,
@@ -282,6 +321,7 @@ button:disabled {
 /*
  * Email-window toolbar.
  */
+
 .preview-canvas::before {
     content: "";
 
@@ -320,6 +360,7 @@ button:disabled {
 /*
  * Small toolbar label.
  */
+
 .preview-canvas::after {
     content: "Email preview";
 
@@ -334,6 +375,7 @@ button:disabled {
 
     transition: color .25s ease;
 }
+
 
 /* ==========================================================
    Signature Preview Surface
@@ -359,17 +401,13 @@ button:disabled {
     max-width: 100%;
 }
 
+
 /* ==========================================================
    Dark Preview
 ========================================================== */
 
 .preview-canvas.dark {
     background: var(--preview-dark);
-    border-color: #404040;
-
-    box-shadow:
-        0 22px 54px rgba(0, 0, 0, .22),
-        0 4px 14px rgba(0, 0, 0, .18);
 }
 
 .preview-canvas.dark::before {
@@ -407,6 +445,7 @@ button:disabled {
  * These are fallback preview rules. The primary text and link
  * colors are supplied by generatePreview() as inline styles.
  */
+
 .preview-canvas.dark .preview-card {
     color: #ffffff;
 }
@@ -414,6 +453,7 @@ button:disabled {
 .preview-canvas.dark .preview-card a {
     color: #7ec8ff;
 }
+
 
 /* ==========================================================
    Preview Toggle Switch
@@ -492,6 +532,231 @@ button:disabled {
     box-shadow: 0 0 0 3px rgba(0, 114, 206, .2);
 }
 
+
+/* ==========================================================
+   Signature Status
+========================================================== */
+
+.signature-status {
+    --status-accent: var(--status-ready);
+    --status-background: var(--status-ready-background);
+    --status-border: var(--status-ready-border);
+
+    background: var(--status-background);
+    border-top: 1px solid var(--status-border);
+    color: var(--gc-text);
+
+    transition:
+        background var(--transition),
+        border-color var(--transition);
+}
+
+.signature-status.status-ready {
+    --status-accent: var(--status-ready);
+    --status-background: var(--status-ready-background);
+    --status-border: var(--status-ready-border);
+}
+
+.signature-status.status-warning {
+    --status-accent: var(--status-warning);
+    --status-background: var(--status-warning-background);
+    --status-border: var(--status-warning-border);
+}
+
+.signature-status.status-error {
+    --status-accent: var(--status-error);
+    --status-background: var(--status-error-background);
+    --status-border: var(--status-error-border);
+}
+
+.status-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+
+    min-height: 78px;
+    padding: 16px 20px;
+}
+
+.status-summary {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+
+    min-width: 0;
+}
+
+.status-indicator {
+    flex: 0 0 auto;
+
+    width: 10px;
+    height: 10px;
+    margin-top: 6px;
+
+    background: var(--status-accent);
+    border-radius: 50%;
+
+    box-shadow: 0 0 0 4px rgba(38, 122, 69, .1);
+
+    transition:
+        background var(--transition),
+        box-shadow var(--transition);
+}
+
+.status-warning .status-indicator {
+    box-shadow: 0 0 0 4px rgba(154, 103, 0, .1);
+}
+
+.status-error .status-indicator {
+    box-shadow: 0 0 0 4px rgba(180, 35, 24, .1);
+}
+
+.status-copy {
+    min-width: 0;
+}
+
+.status-copy h3 {
+    margin: 0;
+
+    color: var(--status-accent);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1.35;
+
+    transition: color var(--transition);
+}
+
+.status-copy p {
+    margin: 3px 0 0;
+
+    color: var(--gc-muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.status-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    flex: 0 0 auto;
+
+    padding: 8px 10px;
+
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    color: var(--gc-muted);
+    font-size: 13px;
+    font-weight: 600;
+
+    white-space: nowrap;
+}
+
+.status-toggle:hover {
+    background: rgba(255, 255, 255, .55);
+    color: var(--gc-text);
+}
+
+.status-toggle:focus-visible {
+    outline: none;
+
+    border-color: var(--status-accent);
+    box-shadow: 0 0 0 3px rgba(0, 114, 206, .15);
+}
+
+.status-toggle-icon {
+    display: inline-block;
+
+    font-size: 9px;
+    line-height: 1;
+
+    transition: transform var(--transition);
+}
+
+.status-toggle[aria-expanded="true"] .status-toggle-icon {
+    transform: rotate(180deg);
+}
+
+
+/* ==========================================================
+   Signature Status Details
+========================================================== */
+
+.status-details {
+    padding: 0 20px 20px 42px;
+
+    border-top: 1px solid rgba(0, 0, 0, .06);
+}
+
+.status-details[hidden] {
+    display: none;
+}
+
+#status-checklist {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 24px;
+
+    margin: 18px 0 0;
+    padding: 0;
+
+    list-style: none;
+}
+
+.status-check {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+
+    color: var(--gc-muted);
+    font-size: 13px;
+    line-height: 1.45;
+}
+
+.status-check-indicator {
+    flex: 0 0 auto;
+
+    width: 7px;
+    height: 7px;
+    margin-top: 6px;
+
+    background: var(--gc-border);
+    border-radius: 50%;
+}
+
+.status-check-pass .status-check-indicator {
+    background: var(--status-ready);
+}
+
+.status-check-warning .status-check-indicator {
+    background: var(--status-warning);
+}
+
+.status-check-error .status-check-indicator {
+    background: var(--status-error);
+}
+
+.status-check-warning {
+    color: #745000;
+}
+
+.status-check-error {
+    color: var(--status-error);
+}
+
+.status-note {
+    margin: 18px 0 0;
+
+    color: var(--gc-muted);
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+
 /* ==========================================================
    Toast Notification
 ========================================================== */
@@ -527,6 +792,7 @@ button:disabled {
     transform: translateY(0);
 }
 
+
 /* ==========================================================
    Responsive
 ========================================================== */
@@ -557,6 +823,12 @@ button:disabled {
     }
 }
 
+@media (max-width: 700px) {
+    #status-checklist {
+        grid-template-columns: 1fr;
+    }
+}
+
 @media (max-width: 600px) {
     .sidebar,
     .preview {
@@ -569,11 +841,13 @@ button:disabled {
         gap: 16px;
     }
 
+    .preview-window {
+        border-radius: 14px;
+    }
+
     .preview-canvas {
         min-height: 360px;
         padding: 80px 20px 32px;
-
-        border-radius: 14px;
     }
 
     .preview-canvas::after {
@@ -582,5 +856,25 @@ button:disabled {
 
     #signature-preview {
         transform-origin: top left;
+    }
+
+    .status-bar {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 12px;
+
+        padding: 16px;
+    }
+
+    .status-toggle {
+        align-self: flex-end;
+    }
+
+    .status-details {
+        padding: 0 16px 18px;
+    }
+
+    #status-checklist {
+        margin-top: 16px;
     }
 }

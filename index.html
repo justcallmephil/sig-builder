@@ -179,13 +179,181 @@
 
             </div>
 
-            <div
-                id="preview-canvas"
-                class="preview-canvas">
+            <div class="preview-window">
+
+                <div
+                    id="preview-canvas"
+                    class="preview-canvas">
+
+                    <section
+                        id="signature-preview"
+                        class="preview-card">
+                    </section>
+
+                </div>
+
+                <!-- ===============================================
+                     Signature Status
+                ================================================ -->
 
                 <section
-                    id="signature-preview"
-                    class="preview-card">
+                    id="signature-status"
+                    class="signature-status status-ready"
+                    aria-live="polite">
+
+                    <div class="status-bar">
+
+                        <div class="status-summary">
+
+                            <span
+                                id="status-indicator"
+                                class="status-indicator"
+                                aria-hidden="true">
+                            </span>
+
+                            <div class="status-copy">
+
+                                <h3 id="status-title">
+                                    Ready for Outlook
+                                </h3>
+
+                                <p id="status-message">
+                                    Your signature is ready to copy or download.
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <button
+                            id="status-toggle"
+                            class="status-toggle"
+                            type="button"
+                            aria-expanded="false"
+                            aria-controls="status-details">
+
+                            <span class="status-toggle-label">
+                                Show details
+                            </span>
+
+                            <span
+                                class="status-toggle-icon"
+                                aria-hidden="true">
+
+                                ▼
+
+                            </span>
+
+                        </button>
+
+                    </div>
+
+                    <div
+                        id="status-details"
+                        class="status-details"
+                        hidden>
+
+                        <ul id="status-checklist">
+
+                            <li
+                                class="status-check status-check-pass"
+                                data-check="name">
+
+                                <span
+                                    class="status-check-indicator"
+                                    aria-hidden="true">
+                                </span>
+
+                                <span>
+                                    Name is included
+                                </span>
+
+                            </li>
+
+                            <li
+                                class="status-check status-check-pass"
+                                data-check="title">
+
+                                <span
+                                    class="status-check-indicator"
+                                    aria-hidden="true">
+                                </span>
+
+                                <span>
+                                    Job title is included
+                                </span>
+
+                            </li>
+
+                            <li
+                                class="status-check status-check-pass"
+                                data-check="phone1">
+
+                                <span
+                                    class="status-check-indicator"
+                                    aria-hidden="true">
+                                </span>
+
+                                <span>
+                                    Primary phone is included
+                                </span>
+
+                            </li>
+
+                            <li
+                                class="status-check status-check-pass"
+                                data-check="signature">
+
+                                <span
+                                    class="status-check-indicator"
+                                    aria-hidden="true">
+                                </span>
+
+                                <span>
+                                    Signature HTML generated successfully
+                                </span>
+
+                            </li>
+
+                            <li
+                                class="status-check status-check-pass"
+                                data-check="structure">
+
+                                <span
+                                    class="status-check-indicator"
+                                    aria-hidden="true">
+                                </span>
+
+                                <span>
+                                    Outlook-compatible layout configured
+                                </span>
+
+                            </li>
+
+                            <li
+                                class="status-check status-check-pass"
+                                data-check="assets">
+
+                                <span
+                                    class="status-check-indicator"
+                                    aria-hidden="true">
+                                </span>
+
+                                <span>
+                                    Secure logo and social assets configured
+                                </span>
+
+                            </li>
+
+                        </ul>
+
+                        <p class="status-note">
+                            Rendering may vary slightly between email clients
+                            and versions of Outlook.
+                        </p>
+
+                    </div>
+
                 </section>
 
             </div>

@@ -11,11 +11,19 @@ import {
     generatePreview
 } from "./signature-template.js";
 
+
 /* ==========================================================
    Elements
 ========================================================== */
 
 const form = document.getElementById("signature-form");
+
+const nameInput = document.getElementById("name");
+const titleInput = document.getElementById("title");
+const phone1Input = document.getElementById("phone1");
+const phone2Input = document.getElementById("phone2");
+const includeAppInput = document.getElementById("includeApp");
+
 const preview = document.getElementById("signature-preview");
 const previewCanvas = document.getElementById("preview-canvas");
 
@@ -26,8 +34,30 @@ const downloadButton = document.getElementById("download-button");
 const darkPreview = document.getElementById("darkPreview");
 const toast = document.getElementById("toast");
 
+const signatureStatus = document.getElementById("signature-status");
+const statusTitle = document.getElementById("status-title");
+const statusMessage = document.getElementById("status-message");
+
+const statusToggle = document.getElementById("status-toggle");
+
+const statusToggleLabel = statusToggle.querySelector(
+    ".status-toggle-label"
+);
+
+const statusDetails = document.getElementById("status-details");
+
+const statusChecks = {
+    name: document.querySelector('[data-check="name"]'),
+    title: document.querySelector('[data-check="title"]'),
+    phone1: document.querySelector('[data-check="phone1"]'),
+    signature: document.querySelector('[data-check="signature"]'),
+    structure: document.querySelector('[data-check="structure"]'),
+    assets: document.querySelector('[data-check="assets"]')
+};
+
+
 /* ==========================================================
-   Default values
+   Default Values
 ========================================================== */
 
 const defaults = {
@@ -38,22 +68,21 @@ const defaults = {
     includeApp: true
 };
 
+
 /* ==========================================================
    Initialize
 ========================================================== */
 
 initialize();
 
+
 /* ==========================================================
-   Functions
+   Core Application
 ========================================================== */
 
 function initialize() {
     populateDefaults();
     render();
-
-    copyButton.disabled = false;
-    downloadButton.disabled = false;
 
     form.addEventListener("input", render);
     darkPreview.addEventListener("change", render);
@@ -61,25 +90,30 @@ function initialize() {
     resetButton.addEventListener("click", resetForm);
     copyButton.addEventListener("click", copySignature);
     downloadButton.addEventListener("click", downloadSignature);
+
+    statusToggle.addEventListener(
+        "click",
+        toggleStatusDetails
+    );
 }
 
 function populateDefaults() {
-    document.getElementById("name").value = defaults.name;
-    document.getElementById("title").value = defaults.title;
-    document.getElementById("phone1").value = defaults.phone1;
-    document.getElementById("phone2").value = defaults.phone2;
-    document.getElementById("includeApp").checked = defaults.includeApp;
+    nameInput.value = defaults.name;
+    titleInput.value = defaults.title;
+    phone1Input.value = defaults.phone1;
+    phone2Input.value = defaults.phone2;
+    includeAppInput.checked = defaults.includeApp;
 
     darkPreview.checked = false;
 }
 
 function getFormData() {
     return {
-        name: document.getElementById("name").value.trim(),
-        title: document.getElementById("title").value.trim(),
-        phone1: document.getElementById("phone1").value.trim(),
-        phone2: document.getElementById("phone2").value.trim(),
-        includeApp: document.getElementById("includeApp").checked
+        name: nameInput.value.trim(),
+        title: titleInput.value.trim(),
+        phone1: phone1Input.value.trim(),
+        phone2: phone2Input.value.trim(),
+        includeApp: includeAppInput.checked
     };
 }
 
@@ -87,66 +121,626 @@ function render() {
     const data = getFormData();
     const isDarkMode = darkPreview.checked;
 
-    preview.innerHTML = generatePreview(
-        data,
-        isDarkMode
-    );
+    let previewGenerated = false;
+    let productionHtml = "";
+
+    try {
+        preview.innerHTML = generatePreview(
+            data,
+            isDarkMode
+        );
+
+        previewGenerated = true;
+    } catch (error) {
+        console.error(
+            "Unable to generate signature preview:",
+            error
+        );
+
+        preview.innerHTML = `
+            <p style="
+                margin:0;
+                color:#b42318;
+                font-family:Arial, sans-serif;
+                font-size:14px;
+            ">
+                The signature preview could not be generated.
+            </p>
+        `;
+    }
 
     previewCanvas.classList.toggle(
         "dark",
         isDarkMode
     );
+
+    try {
+        productionHtml = generateSignature(data);
+    } catch (error) {
+        console.error(
+            "Unable to generate production signature:",
+            error
+        );
+    }
+
+    updateSignatureStatus({
+        data,
+        productionHtml,
+        previewGenerated
+    });
 }
 
 function resetForm() {
     populateDefaults();
+    closeStatusDetails();
     render();
 }
+
+
+/* ==========================================================
+   Signature Status
+========================================================== */
+
+function updateSignatureStatus({
+    data,
+    productionHtml,
+    previewGenerated
+}) {
+    const checks = evaluateSignature({
+        data,
+        productionHtml,
+        previewGenerated
+    });
+
+    const errors = checks.filter(
+        check => check.level === "error"
+    );
+
+    const warnings = checks.filter(
+        check => check.level === "warning"
+    );
+
+    updateChecklist(checks);
+
+    if (errors.length > 0) {
+        setStatus({
+            state: "error",
+            title: "Signature needs attention",
+            message: errors[0].message
+        });
+
+        copyButton.disabled = true;
+        downloadButton.disabled = true;
+
+        return;
+    }
+
+    if (warnings.length > 0) {
+        const defaultWarnings = warnings.filter(
+            check => check.reason === "default"
+        );
+
+        if (defaultWarnings.length > 0) {
+            setStatus({
+                state: "warning",
+                title: "Replace the sample information",
+                message: createDefaultWarningMessage(
+                    defaultWarnings
+                )
+            });
+        } else {
+            setStatus({
+                state: "warning",
+                title: "Please review your signature",
+                message: warnings[0].message
+            });
+        }
+
+        copyButton.disabled = false;
+        downloadButton.disabled = false;
+
+        return;
+    }
+
+    setStatus({
+        state: "ready",
+        title: "Ready for Outlook",
+        message: "Your signature is ready to copy or download."
+    });
+
+    copyButton.disabled = false;
+    downloadButton.disabled = false;
+}
+
+function evaluateSignature({
+    data,
+    productionHtml,
+    previewGenerated
+}) {
+    const checks = [];
+
+    checks.push(
+        evaluateName(data.name)
+    );
+
+    checks.push(
+        evaluateTitle(data.title)
+    );
+
+    checks.push(
+        evaluatePrimaryPhone(data.phone1)
+    );
+
+    const signatureGenerated =
+        previewGenerated &&
+        Boolean(productionHtml.trim());
+
+    checks.push({
+        key: "signature",
+        level: signatureGenerated ? "pass" : "error",
+        message: signatureGenerated
+            ? "Signature HTML generated successfully."
+            : "The signature could not be generated. Reload the builder and try again."
+    });
+
+    checks.push(
+        evaluateStructure(productionHtml)
+    );
+
+    checks.push(
+        evaluateAssets(productionHtml)
+    );
+
+    const secondaryPhoneCheck =
+        evaluateSecondaryPhone(data.phone2);
+
+    if (secondaryPhoneCheck) {
+        checks.push(secondaryPhoneCheck);
+    }
+
+    return checks;
+}
+
+function evaluateName(name) {
+    if (!name) {
+        return {
+            key: "name",
+            level: "error",
+            message:
+                "Enter your name before copying or downloading."
+        };
+    }
+
+    if (isDefaultValue(name, defaults.name)) {
+        return {
+            key: "name",
+            level: "warning",
+            reason: "default",
+            fieldLabel: "name",
+            message:
+                "Replace the sample name with your own name."
+        };
+    }
+
+    return {
+        key: "name",
+        level: "pass",
+        message: "Name is included."
+    };
+}
+
+function evaluateTitle(title) {
+    if (!title) {
+        return {
+            key: "title",
+            level: "error",
+            message:
+                "Enter your job title before copying or downloading."
+        };
+    }
+
+    if (isDefaultValue(title, defaults.title)) {
+        return {
+            key: "title",
+            level: "warning",
+            reason: "default",
+            fieldLabel: "job title",
+            message:
+                "Replace the sample job title with your own title."
+        };
+    }
+
+    return {
+        key: "title",
+        level: "pass",
+        message: "Job title is included."
+    };
+}
+
+function evaluatePrimaryPhone(phone) {
+    if (!phone) {
+        return {
+            key: "phone1",
+            level: "error",
+            message:
+                "Enter a primary phone number before copying or downloading."
+        };
+    }
+
+    if (isDefaultValue(phone, defaults.phone1)) {
+        return {
+            key: "phone1",
+            level: "warning",
+            reason: "default",
+            fieldLabel: "primary phone number",
+            message:
+                "Replace the sample phone number with your own number."
+        };
+    }
+
+    if (!hasExpectedPhoneCharacters(phone)) {
+        return {
+            key: "phone1",
+            level: "warning",
+            message:
+                "The primary phone number contains unexpected characters. Please review it."
+        };
+    }
+
+    if (countPhoneDigits(phone) < 7) {
+        return {
+            key: "phone1",
+            level: "warning",
+            message:
+                "The primary phone number appears unusually short. Please review it."
+        };
+    }
+
+    return {
+        key: "phone1",
+        level: "pass",
+        message: "Primary phone is included."
+    };
+}
+
+function evaluateSecondaryPhone(phone) {
+    if (!phone) {
+        return null;
+    }
+
+    if (!hasExpectedPhoneCharacters(phone)) {
+        return {
+            key: "phone2",
+            level: "warning",
+            message:
+                "The secondary phone number contains unexpected characters. Please review it."
+        };
+    }
+
+    if (countPhoneDigits(phone) < 7) {
+        return {
+            key: "phone2",
+            level: "warning",
+            message:
+                "The secondary phone number appears unusually short. Please review it."
+        };
+    }
+
+    return null;
+}
+
+function createDefaultWarningMessage(defaultWarnings) {
+    const fieldLabels = defaultWarnings.map(
+        warning => warning.fieldLabel
+    );
+
+    if (fieldLabels.length === 1) {
+        return `Replace the sample ${fieldLabels[0]} before using the signature.`;
+    }
+
+    if (fieldLabels.length === 2) {
+        return (
+            `Replace the sample ${fieldLabels[0]} and ` +
+            `${fieldLabels[1]} before using the signature.`
+        );
+    }
+
+    const finalLabel = fieldLabels.pop();
+
+    return (
+        `Replace the sample ${fieldLabels.join(", ")}, and ` +
+        `${finalLabel} before using the signature.`
+    );
+}
+
+function isDefaultValue(value, defaultValue) {
+    return normalizeValue(value) === normalizeValue(defaultValue);
+}
+
+function normalizeValue(value) {
+    return String(value || "")
+        .trim()
+        .replace(/\s+/g, " ")
+        .toLowerCase();
+}
+
+function evaluateStructure(productionHtml) {
+    if (!productionHtml) {
+        return {
+            key: "structure",
+            level: "error",
+            message:
+                "The Outlook-compatible signature layout could not be created."
+        };
+    }
+
+    const hasTableLayout =
+        /<table[\s>]/i.test(productionHtml);
+
+    const hasInlineStyles =
+        /style\s*=\s*["']/i.test(productionHtml);
+
+    if (!hasTableLayout || !hasInlineStyles) {
+        return {
+            key: "structure",
+            level: "warning",
+            message:
+                "The generated signature may be missing part of its Outlook-compatible formatting."
+        };
+    }
+
+    return {
+        key: "structure",
+        level: "pass",
+        message:
+            "Outlook-compatible layout is configured."
+    };
+}
+
+function evaluateAssets(productionHtml) {
+    if (!productionHtml) {
+        return {
+            key: "assets",
+            level: "error",
+            message:
+                "The signature assets could not be checked."
+        };
+    }
+
+    const documentParser = new DOMParser();
+
+    const parsedDocument = documentParser.parseFromString(
+        productionHtml,
+        "text/html"
+    );
+
+    const images = Array.from(
+        parsedDocument.querySelectorAll("img")
+    );
+
+    if (images.length === 0) {
+        return {
+            key: "assets",
+            level: "warning",
+            message:
+                "No logo or social images were found in the generated signature."
+        };
+    }
+
+    const missingSource = images.some(
+        image => !image.getAttribute("src")?.trim()
+    );
+
+    if (missingSource) {
+        return {
+            key: "assets",
+            level: "warning",
+            message:
+                "One or more signature images are missing their source address."
+        };
+    }
+
+    const unsafeSource = images.some(image => {
+        const source = image
+            .getAttribute("src")
+            .trim();
+
+        return !(
+            source.startsWith("https://") ||
+            source.startsWith("/") ||
+            source.startsWith("./") ||
+            source.startsWith("../")
+        );
+    });
+
+    if (unsafeSource) {
+        return {
+            key: "assets",
+            level: "warning",
+            message:
+                "One or more signature images may not use a secure address."
+        };
+    }
+
+    const missingAltText = images.some(
+        image => !image.hasAttribute("alt")
+    );
+
+    if (missingAltText) {
+        return {
+            key: "assets",
+            level: "warning",
+            message:
+                "One or more signature images are missing accessibility text."
+        };
+    }
+
+    return {
+        key: "assets",
+        level: "pass",
+        message:
+            "Logo and social assets are configured."
+    };
+}
+
+function hasExpectedPhoneCharacters(phone) {
+    return /^[0-9+\-().\s]*(?:(?:x|ext\.?)\s*\d+)?$/i.test(
+        phone
+    );
+}
+
+function countPhoneDigits(phone) {
+    return (
+        String(phone)
+            .match(/\d/g) || []
+    ).length;
+}
+
+function setStatus({
+    state,
+    title,
+    message
+}) {
+    signatureStatus.classList.remove(
+        "status-ready",
+        "status-warning",
+        "status-error"
+    );
+
+    signatureStatus.classList.add(
+        `status-${state}`
+    );
+
+    statusTitle.textContent = title;
+    statusMessage.textContent = message;
+}
+
+function updateChecklist(checks) {
+    Object.entries(statusChecks).forEach(
+        ([key, element]) => {
+            const check = checks.find(
+                item => item.key === key
+            );
+
+            const level = check
+                ? check.level
+                : "pass";
+
+            element.classList.remove(
+                "status-check-pass",
+                "status-check-warning",
+                "status-check-error"
+            );
+
+            element.classList.add(
+                `status-check-${level}`
+            );
+
+            element.dataset.status = level;
+        }
+    );
+}
+
+
+/* ==========================================================
+   Status Details Disclosure
+========================================================== */
+
+function toggleStatusDetails() {
+    const isExpanded =
+        statusToggle.getAttribute(
+            "aria-expanded"
+        ) === "true";
+
+    if (isExpanded) {
+        closeStatusDetails();
+    } else {
+        openStatusDetails();
+    }
+}
+
+function openStatusDetails() {
+    statusDetails.hidden = false;
+
+    statusToggle.setAttribute(
+        "aria-expanded",
+        "true"
+    );
+
+    statusToggleLabel.textContent =
+        "Hide details";
+}
+
+function closeStatusDetails() {
+    statusDetails.hidden = true;
+
+    statusToggle.setAttribute(
+        "aria-expanded",
+        "false"
+    );
+
+    statusToggleLabel.textContent =
+        "Show details";
+}
+
 
 /* ==========================================================
    Copy for Outlook
 ========================================================== */
 
 async function copySignature() {
-    /*
-     * generateSignature() always returns the standard
-     * production signature, regardless of preview mode.
-     */
+    if (copyButton.disabled) {
+        return;
+    }
+
     const productionHtml = generateSignature(
         getFormData()
     );
 
-    const temporaryContainer = document.createElement("div");
+    const temporaryContainer =
+        document.createElement("div");
 
     temporaryContainer.style.position = "fixed";
     temporaryContainer.style.left = "-9999px";
     temporaryContainer.style.top = "0";
     temporaryContainer.innerHTML = productionHtml;
 
-    document.body.appendChild(temporaryContainer);
+    document.body.appendChild(
+        temporaryContainer
+    );
 
     try {
-        if (navigator.clipboard && window.ClipboardItem) {
+        if (
+            navigator.clipboard &&
+            window.ClipboardItem
+        ) {
             const htmlBlob = new Blob(
                 [productionHtml],
-                { type: "text/html" }
+                {
+                    type: "text/html"
+                }
             );
 
             const plainTextBlob = new Blob(
                 [temporaryContainer.innerText],
-                { type: "text/plain" }
+                {
+                    type: "text/plain"
+                }
             );
 
-            const clipboardItem = new ClipboardItem({
-                "text/html": htmlBlob,
-                "text/plain": plainTextBlob
-            });
+            const clipboardItem =
+                new ClipboardItem({
+                    "text/html": htmlBlob,
+                    "text/plain": plainTextBlob
+                });
 
             await navigator.clipboard.write([
                 clipboardItem
             ]);
         } else {
-            legacyCopy(temporaryContainer);
+            legacyCopy(
+                temporaryContainer
+            );
         }
 
         showToast(
@@ -159,12 +753,26 @@ async function copySignature() {
             error
         );
 
-        legacyCopy(temporaryContainer);
+        try {
+            legacyCopy(
+                temporaryContainer
+            );
 
-        showToast(
-            "✓ Signature copied!<br>" +
-            "Open Outlook → Settings → Signatures and paste."
-        );
+            showToast(
+                "✓ Signature copied!<br>" +
+                "Open Outlook → Settings → Signatures and paste."
+            );
+        } catch (legacyError) {
+            console.error(
+                "Legacy copy also failed:",
+                legacyError
+            );
+
+            showToast(
+                "Unable to copy the signature.<br>" +
+                "Please try downloading the HTML file instead."
+            );
+        }
     } finally {
         temporaryContainer.remove();
     }
@@ -172,31 +780,52 @@ async function copySignature() {
 
 function legacyCopy(element) {
     const range = document.createRange();
-    range.selectNodeContents(element);
 
-    const selection = window.getSelection();
+    range.selectNodeContents(
+        element
+    );
+
+    const selection =
+        window.getSelection();
+
+    if (!selection) {
+        throw new Error(
+            "Text selection is unavailable."
+        );
+    }
 
     selection.removeAllRanges();
     selection.addRange(range);
 
-    document.execCommand("copy");
+    const copied =
+        document.execCommand("copy");
 
     selection.removeAllRanges();
+
+    if (!copied) {
+        throw new Error(
+            "The browser rejected the copy command."
+        );
+    }
 }
+
 
 /* ==========================================================
    Download HTML
 ========================================================== */
 
 function downloadSignature() {
+    if (downloadButton.disabled) {
+        return;
+    }
+
     const data = getFormData();
 
-    /*
-     * The downloaded file always uses the standard production
-     * signature, regardless of the current preview mode.
-     */
-    const productionHtml = generateSignature(data);
-    const completeDocument = createHtmlDocument(productionHtml);
+    const productionHtml =
+        generateSignature(data);
+
+    const completeDocument =
+        createHtmlDocument(productionHtml);
 
     const fileBlob = new Blob(
         [completeDocument],
@@ -205,17 +834,26 @@ function downloadSignature() {
         }
     );
 
-    const downloadUrl = URL.createObjectURL(fileBlob);
-    const downloadLink = document.createElement("a");
+    const downloadUrl =
+        URL.createObjectURL(fileBlob);
+
+    const downloadLink =
+        document.createElement("a");
 
     downloadLink.href = downloadUrl;
-    downloadLink.download = createFilename(data.name);
+    downloadLink.download =
+        createFilename(data.name);
 
-    document.body.appendChild(downloadLink);
+    document.body.appendChild(
+        downloadLink
+    );
+
     downloadLink.click();
     downloadLink.remove();
 
-    URL.revokeObjectURL(downloadUrl);
+    URL.revokeObjectURL(
+        downloadUrl
+    );
 
     showToast(
         "✓ HTML file downloaded!<br>" +
@@ -224,13 +862,14 @@ function downloadSignature() {
 }
 
 function createHtmlDocument(signatureHtml) {
-    const generatedDate = new Intl.DateTimeFormat(
-        "en-US",
-        {
-            dateStyle: "long",
-            timeStyle: "short"
-        }
-    ).format(new Date());
+    const generatedDate =
+        new Intl.DateTimeFormat(
+            "en-US",
+            {
+                dateStyle: "long",
+                timeStyle: "short"
+            }
+        ).format(new Date());
 
     return `<!DOCTYPE html>
 <!--
@@ -240,6 +879,7 @@ Generated: ${generatedDate}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+
     <meta
         name="viewport"
         content="width=device-width, initial-scale=1.0">
@@ -269,6 +909,7 @@ function createFilename(name) {
     return `${cleanedName}-Grace-Signature.html`;
 }
 
+
 /* ==========================================================
    Toast
 ========================================================== */
@@ -277,9 +918,14 @@ function showToast(message) {
     toast.innerHTML = message;
     toast.classList.add("show");
 
-    clearTimeout(showToast.timer);
+    clearTimeout(
+        showToast.timer
+    );
 
-    showToast.timer = setTimeout(() => {
-        toast.classList.remove("show");
-    }, 4000);
+    showToast.timer = setTimeout(
+        () => {
+            toast.classList.remove("show");
+        },
+        4000
+    );
 }
