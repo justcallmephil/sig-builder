@@ -2,7 +2,7 @@
  * ==========================================================
  * Grace Signature Builder
  * main.js
- * Version 0.5
+ * Version 0.6
  * ==========================================================
  */
 
@@ -23,6 +23,10 @@ const titleInput = document.getElementById("title");
 const phone1Input = document.getElementById("phone1");
 const phone2Input = document.getElementById("phone2");
 const includeAppInput = document.getElementById("includeApp");
+
+const logoFamilyInputs = Array.from(
+    document.querySelectorAll('input[name="logoFamily"]')
+);
 
 const preview = document.getElementById("signature-preview");
 const previewCanvas = document.getElementById("preview-canvas");
@@ -65,7 +69,8 @@ const defaults = {
     title: "Job Title",
     phone1: "000-000-0000",
     phone2: "",
-    includeApp: true
+    includeApp: true,
+    logoFamily: "standard"
 };
 
 
@@ -104,6 +109,14 @@ function populateDefaults() {
     phone2Input.value = defaults.phone2;
     includeAppInput.checked = defaults.includeApp;
 
+    const defaultLogoInput = logoFamilyInputs.find(
+        input => input.value === defaults.logoFamily
+    );
+
+    if (defaultLogoInput) {
+        defaultLogoInput.checked = true;
+    }
+
     darkPreview.checked = false;
 }
 
@@ -113,8 +126,19 @@ function getFormData() {
         title: titleInput.value.trim(),
         phone1: phone1Input.value.trim(),
         phone2: phone2Input.value.trim(),
-        includeApp: includeAppInput.checked
+        includeApp: includeAppInput.checked,
+        logoFamily: getSelectedLogoFamily()
     };
+}
+
+function getSelectedLogoFamily() {
+    const selectedLogoInput = logoFamilyInputs.find(
+        input => input.checked
+    );
+
+    return selectedLogoInput
+        ? selectedLogoInput.value
+        : defaults.logoFamily;
 }
 
 function render() {
@@ -873,7 +897,7 @@ function createHtmlDocument(signatureHtml) {
 
     return `<!DOCTYPE html>
 <!--
-Grace Signature Builder v0.5
+Grace Signature Builder v0.6
 Generated: ${generatedDate}
 -->
 <html lang="en">

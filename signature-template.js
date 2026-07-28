@@ -9,11 +9,58 @@
 const GRACE_URL = "https://grace.org";
 const GC_CONNECT_URL = "https://grace.org/app";
 
-const LOGO_LIGHT =
-    "https://s3.amazonaws.com/account-media/27875/uploaded/g/0e21257247_1783976021_gc-email-sig-220px-light.png";
 
-const LOGO_DARK =
-    "https://s3.amazonaws.com/account-media/27875/uploaded/g/0e21257244_1783976001_gc-email-sig-220px-dark.png";
+/* ==========================================================
+   Logo Families
+========================================================== */
+
+/*
+ * Each logo family supports three variants:
+ *
+ * light:
+ * Used on light backgrounds and in production signatures.
+ *
+ * dark:
+ * Used for the dark-mode preview.
+ *
+ * glow:
+ * Reserved as a fallback for environments where the preferred
+ * light or dark asset is unavailable.
+ *
+ * The current Standard family did not previously define a
+ * separate glow URL, so its light asset remains the final
+ * fallback until that URL is added.
+ */
+
+const LOGO_FAMILIES = {
+    standard: {
+        light:
+            "https://s3.amazonaws.com/account-media/27875/uploaded/g/0e21257247_1783976021_gc-email-sig-220px-light.png",
+
+        dark:
+            "https://s3.amazonaws.com/account-media/27875/uploaded/g/0e21257244_1783976001_gc-email-sig-220px-dark.png",
+
+        glow: ""
+    },
+
+    alternate: {
+        light:
+            "https://s3.amazonaws.com/account-media/27875/uploaded/g/0e21302891_1785265719_gc-email-sig-v2-220px-light.png",
+
+        dark:
+            "https://s3.amazonaws.com/account-media/27875/uploaded/g/0e21302885_1785265683_gc-email-sig-v2-220px-dark.png",
+
+        glow:
+            "https://s3.amazonaws.com/account-media/27875/uploaded/g/0e21302889_1785265700_gc-email-sig-v2-220px-glow.png"
+    }
+};
+
+const DEFAULT_LOGO_FAMILY = "standard";
+
+
+/* ==========================================================
+   Social Assets
+========================================================== */
 
 const INSTAGRAM =
     "https://s3.amazonaws.com/account-media/27875/uploaded/g/0e21238197_1783532772_gc-inst.png";
@@ -24,8 +71,9 @@ const YOUTUBE =
 const FACEBOOK =
     "https://s3.amazonaws.com/account-media/27875/uploaded/g/0e21238195_1783532772_gc-fb.png";
 
+
 /* ==========================================================
-   Inline email styles
+   Inline Email Styles
 ========================================================== */
 
 const styles = {
@@ -51,43 +99,78 @@ const styles = {
         "display:block;width:28px;height:28px;border:0;outline:none;text-decoration:none;"
 };
 
+
 /* ==========================================================
-   Production signature
+   Production Signature
 ========================================================== */
 
 export function generateSignature(data) {
+    const logoFamily = resolveLogoFamily(
+        data.logoFamily
+    );
+
     return buildSignature(data, {
-        logo: LOGO_LIGHT,
+        logo: getLogoAsset(
+            logoFamily,
+            "light"
+        ),
+
         textColor: "#333333",
         linkColor: "#0072CE"
     });
 }
 
+
 /* ==========================================================
-   Preview signature
+   Preview Signature
 ========================================================== */
 
-export function generatePreview(data, darkMode = false) {
+export function generatePreview(
+    data,
+    darkMode = false
+) {
+    const logoFamily = resolveLogoFamily(
+        data.logoFamily
+    );
+
+    const logoVariant = darkMode
+        ? "dark"
+        : "light";
+
     return buildSignature(data, {
-        logo: darkMode ? LOGO_DARK : LOGO_LIGHT,
-        textColor: darkMode ? "#FFFFFF" : "#333333",
-        linkColor: darkMode ? "#7EC8FF" : "#0072CE"
+        logo: getLogoAsset(
+            logoFamily,
+            logoVariant
+        ),
+
+        textColor: darkMode
+            ? "#FFFFFF"
+            : "#333333",
+
+        linkColor: darkMode
+            ? "#7EC8FF"
+            : "#0072CE"
     });
 }
 
+
 /* ==========================================================
-   Shared signature template
+   Shared Signature Template
 ========================================================== */
 
 function buildSignature(data, theme) {
     const contactLines = [];
 
     if (data.phone1) {
-        contactLines.push(escapeHtml(data.phone1));
+        contactLines.push(
+            escapeHtml(data.phone1)
+        );
     }
 
     if (data.phone2) {
-        contactLines.push(escapeHtml(data.phone2));
+        contactLines.push(
+            escapeHtml(data.phone2)
+        );
     }
 
     if (data.includeApp) {
@@ -278,6 +361,56 @@ function buildSignature(data, theme) {
 </table>
 `;
 }
+
+
+/* ==========================================================
+   Logo Utilities
+========================================================== */
+
+function resolveLogoFamily(requestedFamily) {
+    const normalizedFamily = String(
+        requestedFamily || ""
+    )
+        .trim()
+        .toLowerCase();
+
+    if (
+        Object.prototype.hasOwnProperty.call(
+            LOGO_FAMILIES,
+            normalizedFamily
+        )
+    ) {
+        return normalizedFamily;
+    }
+
+    return DEFAULT_LOGO_FAMILY;
+}
+
+function getLogoAsset(
+    familyName,
+    preferredVariant
+) {
+    const family =
+        LOGO_FAMILIES[familyName] ||
+        LOGO_FAMILIES[DEFAULT_LOGO_FAMILY];
+
+    /*
+     * Preferred order:
+     *
+     * 1. Requested light or dark variant
+     * 2. Glow fallback
+     * 3. Light fallback
+     * 4. Standard light asset
+     */
+
+    return (
+        family[preferredVariant] ||
+        family.glow ||
+        family.light ||
+        LOGO_FAMILIES[DEFAULT_LOGO_FAMILY].light
+    );
+}
+
 
 /* ==========================================================
    Utilities
