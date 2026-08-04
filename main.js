@@ -2,7 +2,7 @@
  * ==========================================================
  * Grace Signature Builder
  * main.js
- * Version 0.10
+ * Version 0.10.1
  * ==========================================================
  */
 
@@ -34,7 +34,7 @@ const previewCanvas = document.getElementById("preview-canvas");
 const resetButton = document.getElementById("reset-button");
 const copyButton = document.getElementById("copy-button");
 const downloadButton = document.getElementById("download-button");
-const clearSavedButton = document.getElementById("clear-saved-button");
+const restoreSavedButton = document.getElementById("restore-saved-button");
 
 const rememberInfo = document.getElementById("rememberInfo");
 
@@ -119,9 +119,9 @@ function initialize() {
         resetForm
     );
 
-    clearSavedButton.addEventListener(
+    restoreSavedButton.addEventListener(
         "click",
-        forgetSavedProfile
+        restoreSavedProfile
     );
 
     copyButton.addEventListener(
@@ -150,11 +150,11 @@ function populateInitialValues() {
     ) {
         applyFormData(savedRecord.profile);
         rememberInfo.checked = true;
-        clearSavedButton.disabled = false;
+        restoreSavedButton.disabled = false;
     } else {
         applyFormData(defaults);
         rememberInfo.checked = false;
-        clearSavedButton.disabled = true;
+        restoreSavedButton.disabled = true;
     }
 
     darkPreview.checked = false;
@@ -199,7 +199,7 @@ function handleFormInput(event) {
 function handleRememberChange() {
     if (rememberInfo.checked) {
         const saved = saveProfile();
-        clearSavedButton.disabled = !saved;
+        restoreSavedButton.disabled = !saved;
 
         showToast(
             saved
@@ -211,7 +211,7 @@ function handleRememberChange() {
     }
 
     clearSavedProfile();
-    clearSavedButton.disabled = true;
+    restoreSavedButton.disabled = true;
 
     showToast(
         "Saved information removed."
@@ -264,7 +264,7 @@ function saveProfile() {
             })
         );
 
-        clearSavedButton.disabled = false;
+        restoreSavedButton.disabled = false;
         return true;
     } catch (error) {
         console.warn(
@@ -287,13 +287,28 @@ function clearSavedProfile() {
     }
 }
 
-function forgetSavedProfile() {
-    clearSavedProfile();
-    rememberInfo.checked = false;
-    clearSavedButton.disabled = true;
+function restoreSavedProfile() {
+    const savedRecord = loadSavedProfile();
+
+    if (!savedRecord || !savedRecord.profile) {
+        restoreSavedButton.disabled = true;
+
+        showToast(
+            "No saved information was found on this device."
+        );
+
+        return;
+    }
+
+    applyFormData(savedRecord.profile);
+    rememberInfo.checked = true;
+    restoreSavedButton.disabled = false;
+
+    closeStatusDetails();
+    render();
 
     showToast(
-        "Saved information removed from this device."
+        "✓ Saved information restored."
     );
 }
 
@@ -378,13 +393,9 @@ function resetForm() {
     closeStatusDetails();
     render();
 
-    if (rememberInfo.checked) {
-        saveProfile();
-    }
-
     showToast(
-        rememberInfo.checked
-            ? "Form reset. The defaults are now saved on this device."
+        loadSavedProfile()
+            ? "Form reset. Use Restore saved to reload your information."
             : "Form reset to the sample defaults."
     );
 }
@@ -1086,7 +1097,7 @@ function createHtmlDocument(signatureHtml) {
 
     return `<!DOCTYPE html>
 <!--
-Grace Signature Builder v0.10
+Grace Signature Builder v0.10.1
 Generated: ${generatedDate}
 -->
 <html lang="en">
