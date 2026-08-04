@@ -296,16 +296,25 @@ button:disabled {
     opacity: .45;
 }
 
-#copy-button,
-#download-button {
+#copy-button {
     background: var(--gc-blue);
-    color: #ffffff;
+    color: white;
 }
 
-#copy-button:not(:disabled):hover,
-#download-button:not(:disabled):hover {
+#download-button {
+    background: white;
+    border: 1px solid var(--gc-blue);
+    color: var(--gc-blue);
+}
+
+#copy-button:not(:disabled):hover {
     transform: translateY(-1px);
     box-shadow: 0 6px 16px rgba(0, 114, 206, .2);
+}
+
+#download-button:not(:disabled):hover {
+    background: rgba(0, 114, 206, .06);
+    transform: translateY(-1px);
 }
 
 #reset-button {
@@ -963,4 +972,39 @@ button:disabled {
     #status-checklist {
         margin-top: 16px;
     }
+
+    /* ==========================================================
+   Local Save
+========================================================== */
+
+.remember-field {
+    margin-top: 1.5rem;
+}
+
+.field-note {
+    margin: 0.5rem 0 0;
+    font-size: 0.82rem;
+    line-height: 1.4;
+    color: var(--gc-muted);
+}
+
+
+/* ==========================================================
+   Secondary Button Row
+========================================================== */
+
+.secondary-button-row {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+}
+
+.secondary-button {
+    flex: 1;
+}
+
+.secondary-button:disabled {
+    opacity: .45;
+    cursor: default;
+}
 }

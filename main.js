@@ -2,7 +2,7 @@
  * ==========================================================
  * Grace Signature Builder
  * main.js
- * Version 0.6
+ * Version 0.10
  * ==========================================================
  */
 
@@ -34,6 +34,9 @@ const previewCanvas = document.getElementById("preview-canvas");
 const resetButton = document.getElementById("reset-button");
 const copyButton = document.getElementById("copy-button");
 const downloadButton = document.getElementById("download-button");
+const clearSavedButton = document.getElementById("clear-saved-button");
+
+const rememberInfo = document.getElementById("rememberInfo");
 
 const darkPreview = document.getElementById("darkPreview");
 const toast = document.getElementById("toast");
@@ -75,6 +78,13 @@ const defaults = {
 
 
 /* ==========================================================
+   Local Storage
+========================================================== */
+
+const STORAGE_KEY = "grace-signature-builder-profile";
+
+
+/* ==========================================================
    Initialize
 ========================================================== */
 
@@ -86,15 +96,43 @@ initialize();
 ========================================================== */
 
 function initialize() {
-    populateDefaults();
+    populateInitialValues();
     render();
 
-    form.addEventListener("input", render);
-    darkPreview.addEventListener("change", render);
+    form.addEventListener(
+        "input",
+        handleFormInput
+    );
 
-    resetButton.addEventListener("click", resetForm);
-    copyButton.addEventListener("click", copySignature);
-    downloadButton.addEventListener("click", downloadSignature);
+    rememberInfo.addEventListener(
+        "change",
+        handleRememberChange
+    );
+
+    darkPreview.addEventListener(
+        "change",
+        render
+    );
+
+    resetButton.addEventListener(
+        "click",
+        resetForm
+    );
+
+    clearSavedButton.addEventListener(
+        "click",
+        forgetSavedProfile
+    );
+
+    copyButton.addEventListener(
+        "click",
+        copySignature
+    );
+
+    downloadButton.addEventListener(
+        "click",
+        downloadSignature
+    );
 
     statusToggle.addEventListener(
         "click",
@@ -102,22 +140,161 @@ function initialize() {
     );
 }
 
-function populateDefaults() {
-    nameInput.value = defaults.name;
-    titleInput.value = defaults.title;
-    phone1Input.value = defaults.phone1;
-    phone2Input.value = defaults.phone2;
-    includeAppInput.checked = defaults.includeApp;
+function populateInitialValues() {
+    const savedRecord = loadSavedProfile();
 
-    const defaultLogoInput = logoFamilyInputs.find(
-        input => input.value === defaults.logoFamily
-    );
-
-    if (defaultLogoInput) {
-        defaultLogoInput.checked = true;
+    if (
+        savedRecord &&
+        savedRecord.remember === true &&
+        savedRecord.profile
+    ) {
+        applyFormData(savedRecord.profile);
+        rememberInfo.checked = true;
+        clearSavedButton.disabled = false;
+    } else {
+        applyFormData(defaults);
+        rememberInfo.checked = false;
+        clearSavedButton.disabled = true;
     }
 
     darkPreview.checked = false;
+}
+
+function applyFormData(data) {
+    const safeData = {
+        ...defaults,
+        ...data
+    };
+
+    nameInput.value = String(safeData.name || "");
+    titleInput.value = String(safeData.title || "");
+    phone1Input.value = String(safeData.phone1 || "");
+    phone2Input.value = String(safeData.phone2 || "");
+    includeAppInput.checked = Boolean(safeData.includeApp);
+
+    const requestedLogo = logoFamilyInputs.find(
+        input => input.value === safeData.logoFamily
+    );
+
+    const fallbackLogo = logoFamilyInputs.find(
+        input => input.value === defaults.logoFamily
+    );
+
+    const logoToSelect = requestedLogo || fallbackLogo;
+
+    if (logoToSelect) {
+        logoToSelect.checked = true;
+    }
+}
+
+function handleFormInput(event) {
+    if (event.target === rememberInfo) {
+        return;
+    }
+
+    render();
+    saveProfile();
+}
+
+function handleRememberChange() {
+    if (rememberInfo.checked) {
+        const saved = saveProfile();
+        clearSavedButton.disabled = !saved;
+
+        showToast(
+            saved
+                ? "✓ Information will be remembered on this device."
+                : "Unable to save information in this browser."
+        );
+
+        return;
+    }
+
+    clearSavedProfile();
+    clearSavedButton.disabled = true;
+
+    showToast(
+        "Saved information removed."
+    );
+}
+
+function loadSavedProfile() {
+    try {
+        const storedValue = localStorage.getItem(STORAGE_KEY);
+
+        if (!storedValue) {
+            return null;
+        }
+
+        const parsedValue = JSON.parse(storedValue);
+
+        if (
+            !parsedValue ||
+            typeof parsedValue !== "object" ||
+            parsedValue.remember !== true ||
+            !parsedValue.profile ||
+            typeof parsedValue.profile !== "object"
+        ) {
+            clearSavedProfile();
+            return null;
+        }
+
+        return parsedValue;
+    } catch (error) {
+        console.warn(
+            "Unable to read the saved profile:",
+            error
+        );
+
+        return null;
+    }
+}
+
+function saveProfile() {
+    if (!rememberInfo.checked) {
+        return false;
+    }
+
+    try {
+        localStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({
+                remember: true,
+                profile: getFormData()
+            })
+        );
+
+        clearSavedButton.disabled = false;
+        return true;
+    } catch (error) {
+        console.warn(
+            "Unable to save the profile:",
+            error
+        );
+
+        return false;
+    }
+}
+
+function clearSavedProfile() {
+    try {
+        localStorage.removeItem(STORAGE_KEY);
+    } catch (error) {
+        console.warn(
+            "Unable to remove the saved profile:",
+            error
+        );
+    }
+}
+
+function forgetSavedProfile() {
+    clearSavedProfile();
+    rememberInfo.checked = false;
+    clearSavedButton.disabled = true;
+
+    showToast(
+        "Saved information removed from this device."
+    );
 }
 
 function getFormData() {
@@ -195,9 +372,21 @@ function render() {
 }
 
 function resetForm() {
-    populateDefaults();
+    applyFormData(defaults);
+    darkPreview.checked = false;
+
     closeStatusDetails();
     render();
+
+    if (rememberInfo.checked) {
+        saveProfile();
+    }
+
+    showToast(
+        rememberInfo.checked
+            ? "Form reset. The defaults are now saved on this device."
+            : "Form reset to the sample defaults."
+    );
 }
 
 
@@ -897,7 +1086,7 @@ function createHtmlDocument(signatureHtml) {
 
     return `<!DOCTYPE html>
 <!--
-Grace Signature Builder v0.6
+Grace Signature Builder v0.10
 Generated: ${generatedDate}
 -->
 <html lang="en">
@@ -911,7 +1100,7 @@ Generated: ${generatedDate}
     <title>Grace Chapel Email Signature</title>
 </head>
 
-<body style="margin:24px;background-color:#FFFFFF;">
+<body style="margin:24px;background-color:transparent;">
 ${signatureHtml}
 </body>
 </html>
