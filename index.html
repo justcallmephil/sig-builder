@@ -162,44 +162,82 @@
                     </div>
 
                 </fieldset>
+<!-- ===============================================
+     Local Save
+=============================================== -->
 
+<div class="field remember-field">
+
+    <label class="checkbox-label">
+
+        <input
+            id="rememberInfo"
+            type="checkbox">
+
+        <span>
+            Remember my information on this device
+        </span>
+
+    </label>
+
+    <p class="field-note">
+        Saved only in this browser. Grace Chapel does not
+        receive or store this information.
+    </p>
+
+</div>
             </form>
 
-            <div class="button-bar">
+<div class="button-bar">
 
-                <button
-                    id="copy-button"
-                    type="button">
+    <button
+        id="copy-button"
+        type="button">
 
-                    Copy for Outlook
+        Copy for Outlook
 
-                </button>
+    </button>
 
-                <button
-                    id="download-button"
-                    type="button">
+    <button
+        id="download-button"
+        type="button">
 
-                    Download HTML
+        Download HTML
 
-                </button>
+    </button>
 
-                <button
-                    id="reset-button"
-                    type="button">
+    <div class="secondary-button-row">
 
-                    Reset
+        <button
+            id="clear-saved-button"
+            class="secondary-button"
+            type="button"
+            disabled>
 
-                </button>
+            Clear saved
 
-            </div>
+        </button>
+
+        <button
+            id="reset-button"
+            class="secondary-button"
+            type="button">
+
+            Reset form
+
+        </button>
+
+    </div>
+
+</div>
 
             <footer class="sidebar-footer">
 
                 Grace Signature Builder
 
                 <span id="version">
-                    v0.6
-                </span>
+    v0.10
+</span>
 
             </footer>
 
