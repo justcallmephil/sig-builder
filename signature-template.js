@@ -2,7 +2,7 @@
  * ==========================================================
  * Grace Signature Builder
  * signature-template.js
- * Version 0.9.1
+ * Version 1.0
  * ==========================================================
  */
 
@@ -30,7 +30,7 @@ const SOCIAL_FACEBOOK = "https://s3.amazonaws.com/account-media/27875/uploaded/g
 
 const SIGNATURE_WIDTH = 420;
 const LOGO_WIDTH = 180;
-const LOGO_COLUMN_WIDTH = 208;
+const LOGO_COLUMN_WIDTH = 216;
 const SOCIAL_BOX_SIZE = 28;
 const SOCIAL_ICON_GAP = 10;
 

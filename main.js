@@ -2,7 +2,7 @@
  * ==========================================================
  * Grace Signature Builder
  * main.js
- * Version 0.10.1
+ * Version 1.0
  * ==========================================================
  */
 
@@ -40,6 +40,10 @@ const rememberInfo = document.getElementById("rememberInfo");
 
 const darkPreview = document.getElementById("darkPreview");
 const toast = document.getElementById("toast");
+
+const aboutButton = document.getElementById("about-button");
+const aboutDialog = document.getElementById("about-dialog");
+const aboutClose = document.getElementById("about-close");
 
 const signatureStatus = document.getElementById("signature-status");
 const statusTitle = document.getElementById("status-title");
@@ -133,6 +137,21 @@ function initialize() {
         "click",
         downloadSignature
     );
+
+    aboutButton.addEventListener("click", openAboutDialog);
+    aboutClose.addEventListener("click", closeAboutDialog);
+
+    aboutDialog.addEventListener("click", event => {
+        if (event.target.hasAttribute("data-close-about")) {
+            closeAboutDialog();
+        }
+    });
+
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape" && !aboutDialog.hidden) {
+            closeAboutDialog();
+        }
+    });
 
     statusToggle.addEventListener(
         "click",
@@ -909,6 +928,23 @@ function closeStatusDetails() {
 
 
 /* ==========================================================
+   About Dialog
+========================================================== */
+
+function openAboutDialog() {
+    aboutDialog.hidden = false;
+    document.body.classList.add("modal-open");
+    aboutClose.focus();
+}
+
+function closeAboutDialog() {
+    aboutDialog.hidden = true;
+    document.body.classList.remove("modal-open");
+    aboutButton.focus();
+}
+
+
+/* ==========================================================
    Copy for Outlook
 ========================================================== */
 
@@ -968,8 +1004,8 @@ async function copySignature() {
         }
 
         showToast(
-            "✓ Signature copied!<br>" +
-            "Open Outlook → Settings → Signatures and paste."
+            "✓ Your Grace signature is ready!<br>" +
+            "Paste it into Outlook → Settings → Signatures."
         );
     } catch (error) {
         console.error(
@@ -1097,7 +1133,7 @@ function createHtmlDocument(signatureHtml) {
 
     return `<!DOCTYPE html>
 <!--
-Grace Signature Builder v0.10.1
+Grace Signature Builder v1.0
 Generated: ${generatedDate}
 -->
 <html lang="en">

@@ -1,7 +1,7 @@
 /* ==========================================================
    Grace Signature Builder
    styles.css
-   Version 0.6
+   Version 1.0
 ========================================================== */
 
 /* ==========================================================
@@ -1007,4 +1007,111 @@ button:disabled {
     opacity: .45;
     cursor: default;
 }
+}
+
+/* ==========================================================
+   Version 1.0 Footer and About Dialog
+========================================================== */
+
+.sidebar-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+#version {
+    margin-left: 4px;
+}
+
+.about-link {
+    padding: 4px 0;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    color: var(--gc-muted);
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.about-link:hover {
+    color: var(--gc-blue);
+}
+
+.modal[hidden] {
+    display: none;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+}
+
+.modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, .58);
+}
+
+.modal-panel {
+    position: relative;
+    z-index: 1;
+    width: min(560px, 100%);
+    max-height: calc(100vh - 48px);
+    overflow: auto;
+    padding: 32px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 24px 70px rgba(0, 0, 0, .28);
+}
+
+.modal-panel h2 {
+    margin: 0;
+    font-size: 26px;
+}
+
+.modal-panel h3 {
+    margin: 24px 0 8px;
+    font-size: 16px;
+}
+
+.modal-panel p,
+.modal-panel li {
+    color: var(--gc-muted);
+    line-height: 1.55;
+}
+
+.modal-version {
+    margin: 4px 0 20px;
+    color: var(--gc-blue) !important;
+    font-weight: 700;
+}
+
+.modal-credit {
+    margin-top: 24px;
+}
+
+.modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    background: #f4f6f8;
+    color: var(--gc-text);
+    font-size: 24px;
+    line-height: 1;
+}
+
+.modal-close:hover {
+    background: #e9edf1;
+}
+
+body.modal-open {
+    overflow: hidden;
 }
